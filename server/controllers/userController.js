@@ -134,7 +134,7 @@ userController.updateUserCar = (req, res, next) => {
     SET car_make = '${req.body.car.car_make}',
         car_model = '${req.body.car.car_model}',
         car_color = '${req.body.car.car_color}'
-    WHERE phone_number = ${req.body.car.id}
+    WHERE phone_number = ${req.body.id}
   `
 
   db.query(text)
