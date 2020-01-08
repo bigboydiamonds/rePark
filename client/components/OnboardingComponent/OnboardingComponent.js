@@ -15,13 +15,14 @@ const OnboardingComponent = (props) => {
   const matches = useMediaQuery(theme.breakpoints.down('sm'));
   const [handleOpen, setHandleOpen] = useState(true);
   return (
+    //this is the loading page of the pictures revolving.  This was constructed using Materials UI.
     <div>
       <CssBaseline />
       <AutoRotatingCarousel
         label="Get started"
         open={handleOpen}
-        onClose={() => setHandleOpen(false)}
-        onStart={() => setHandleOpen(false)}
+        onClose={() => setHandleOpen(false)}  //this turns on/off the open quality of the carousel
+        onStart={() => setHandleOpen(false)}  //when the start button is clicked, the carousel is closed, movee on
         mobile={matches}
       >
         <Slide

@@ -8,6 +8,7 @@ export function UserProvider(props) {
     isLoggedIn: false,
     name: null,
     phone: null,
+    email: null,
     car: {
       car_make: '',
       car_model: '',

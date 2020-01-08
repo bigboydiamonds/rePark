@@ -52,6 +52,7 @@ const LogInComponent = props => {
   const { user, updateUser } = useContext(UserContext);
   const [phone, setPhone] = useState('');
   const [pass, setPass] = useState('');
+  const [logInCount, setCount] = useState(0); //added login counter to give 3 attempts
 
   let history = useHistory();
   let location = useLocation();
@@ -59,7 +60,7 @@ const LogInComponent = props => {
 
   const handlePassChange = e => {
     setPass(e.target.value);
-  }
+  } 
   const handlePhoneNumberChange = e => {
     setPhone(e.target.value);
   }
@@ -83,7 +84,16 @@ const LogInComponent = props => {
           history.push("/main");
         }
         else {
-          history.push("/signup");
+          if (logInCount < 3) { //adding a counter to allow for multiple failed attempts
+            setCount(logInCount => logInCount + 1)
+            setPass("");
+            setPhone("");
+            alert(`Login Credentials Invalid \n\r You have ${3 - logInCount} attempt(s) left!`);
+          }
+          else {
+            alert("Too Many Invalid Attempts, please Sign Up or Recover Password");
+            history.push("/signup");
+          }
         }
       })
       .catch(err => {

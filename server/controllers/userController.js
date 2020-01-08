@@ -4,18 +4,15 @@ const db = require('../models/data');
 const userController = {};
 
 userController.createUser = (req, res, next) => {
-  const { name, phone, pass } = req.body;
+  const { name, phone, pass, email } = req.body;
   const phoneNum = Number(phone);
-
   const text = `
-      INSERT INTO users(name, password, phone_number)
-      values($1, $2, $3);
+      INSERT INTO users(name, password, phone_number, email)
+      values($1, $2, $3, $4);
   `
 
-  const values = [ name, pass, phoneNum ];
-  console.log('req.body is', req.body);
+  const values = [ name, pass, phoneNum, email ];
 
-  console.log('values in this bitch: ', values);
   db.query(text, values)
     .then(response => console.log(response))
     .catch(err => console.log(err))
@@ -131,13 +128,13 @@ userController.updateUserCar = (req, res, next) => {
   const { car_make, car_model, car_color } = req.body;
   const { phone } = req.body;
   const phoneNum = Number(phone);
-
+  console.log('req.body in userController: ', req.body);
   const text = `
     UPDATE users
-    SET car_make = '${car_make}',
-        car_model = '${car_model}',
-        car_color = '${car_color}'
-    WHERE phone_number = ${phoneNum}
+    SET car_make = '${req.body.car.car_make}',
+        car_model = '${req.body.car.car_model}',
+        car_color = '${req.body.car.car_color}'
+    WHERE phone_number = ${req.body.car.id}
   `
 
   db.query(text)
