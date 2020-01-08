@@ -41,7 +41,6 @@ const useStyles = makeStyles(theme => ({
 
 export default function SignUpSecondary(props) {
   const classes = useStyles();
-
   let history = useHistory();
   const { user, updateUser } = useContext(UserContext);
 
@@ -49,6 +48,7 @@ export default function SignUpSecondary(props) {
     e.preventDefault();
     fetch("/signup", {
       method: "PUT",
+      credentials: 'include',
       body: JSON.stringify({
         car: {
           car_make: user.car.car_make,

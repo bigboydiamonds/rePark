@@ -13,13 +13,16 @@ import {
   Route,
   Link
 } from "react-router-dom";
+//imported features include larged React with Hooks (user Context), and various components built within the component folder.
+
 
 //TODO: Add "/" route and corresponding component as a splash page for users who are not logged in
 //TODO: Add a route for the actual app once a user has logged in
 //TODO: Add a route for the users profile page
-
+//
 const App = () => {
-  const { user } = useContext(UserContext)
+  const { user } = useContext(UserContext) //user Context is where the user information is pulled/updated (via useContext)
+  //This functions as a state for the 
   return (
     <Router>
       <Switch>
@@ -28,15 +31,16 @@ const App = () => {
           path="/"
           component={MainPage}
         >
-          {/* {user.isLoggedIn ? <Redirect to="/main" /> : <Redirect to="/welcome" />} */}
+          {/* {user.isLoggedIn ? <Redirect to="/main" /> : <Redirect to="/welcome" />} 
+          we will use this when the authentication portion of the app is complete*/}
         </Route>
         <Route
-          path="/main"
+          path="/main" //main is the Map
           exact
           component={MapComponent}
         />
         <Route
-          path="/login"
+          path="/login" 
           exact
           component={LogInComponent}
         />
@@ -46,12 +50,13 @@ const App = () => {
           component={SignUpInitial}
         />
         <Route
-          path="/signup2"
+          path="/signup2"//car details page
           exact
           component={SignUpSecondary}
         />
-        //TODO: I inserted a temporary path actually another prop should be passed as isLogged in
+        
         <Route
+          //TODO: I inserted a temporary path actually another prop should be passed as isLogged in
           path="/welcome"
           exact
           component={OnboardingComponent}
