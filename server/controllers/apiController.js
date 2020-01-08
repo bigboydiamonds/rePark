@@ -56,7 +56,7 @@ apiController.findOne = async (req, res, next) =>{
         values($1)
                 `
 
-  const values = [req.body.id]
+  const values = [res.locals.id]
   await db.query(text2, values)
     .then(response => {console.log(response)})
     .catch(err => {console.log(err)})
