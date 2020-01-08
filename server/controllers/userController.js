@@ -126,7 +126,7 @@ userController.verifyUser = async (req, res, next)=>{
 
 userController.updateUserCar = (req, res, next) => {
   const { car_make, car_model, car_color } = req.body;
-  const { phone } = req.body;
+  const { id } = req.body;
   const phoneNum = Number(phone);
   console.log('req.body in userController: ', req.body);
   const text = `
@@ -134,7 +134,7 @@ userController.updateUserCar = (req, res, next) => {
     SET car_make = '${req.body.car.car_make}',
         car_model = '${req.body.car.car_model}',
         car_color = '${req.body.car.car_color}'
-    WHERE phone_number = ${req.body.id}
+    WHERE phone_number = ${id}
   `
 
   db.query(text)
