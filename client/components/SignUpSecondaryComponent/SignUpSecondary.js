@@ -46,6 +46,10 @@ export default function SignUpSecondary(props) {
 
   const handleSubmit = e => {
     e.preventDefault();
+    if (user.car.car_make.length < 1 || user.car.car_model.length < 1 || user.car.car_color.length < 1) {
+      alert(`What you whippin dawg? Don't leave us hangin...`);
+      return
+    }
     fetch("/signup", {
       method: "PUT",
       credentials: 'include',
