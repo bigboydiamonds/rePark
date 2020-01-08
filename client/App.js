@@ -54,7 +54,6 @@ const App = () => {
           exact
           component={SignUpSecondary}
         />
-        
         <Route
           path="/welcome"
           exact

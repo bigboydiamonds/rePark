@@ -54,6 +54,7 @@ export default function SignUpSecondary(props) {
       method: "PUT",
       credentials: 'include',
       body: JSON.stringify({
+        id: user.id,
         car: {
           car_make: user.car.car_make,
           car_model: user.car.car_model,
