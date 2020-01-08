@@ -127,7 +127,7 @@ const MapComponent = () => {
         body: JSON.stringify({
           longitude,
           latitude,
-          user_id: user.id
+          id: user.id
         }),
         headers: { 'content-type': 'application/json', 'Accept': 'application/json' }
       });
