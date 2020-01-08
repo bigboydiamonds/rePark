@@ -29,7 +29,7 @@ const App = () => {
         <Route
           exact
           path="/"
-          component={MainPage}
+          component={LogInComponent}
         >
           {/* {user.isLoggedIn ? <Redirect to="/main" /> : <Redirect to="/welcome" />} 
           we will use this when the authentication portion of the app is complete*/}
@@ -47,7 +47,7 @@ const App = () => {
         <Route
           path="/signup"
           exact
-          component={SignUpInitial}
+          component={MainPage}
         />
         <Route
           path="/signup2"//car details page
@@ -56,7 +56,6 @@ const App = () => {
         />
         
         <Route
-          //TODO: I inserted a temporary path actually another prop should be passed as isLogged in
           path="/welcome"
           exact
           component={OnboardingComponent}
