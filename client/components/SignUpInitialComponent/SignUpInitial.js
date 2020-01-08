@@ -20,7 +20,7 @@ import Copyright from '../CopyrightComponent/Copyright';
 import { UserContext } from '../../contexts/UserContext';
 
 //TODO: Add form validation before user can move on to secondary sign up page
-
+//we need to validate user input on this form.
 const useStyles = makeStyles(theme => ({
   paper: {
     marginTop: theme.spacing(8),
@@ -48,12 +48,14 @@ const useStyles = makeStyles(theme => ({
 
 export default function SignUpInitial(props) {
   const classes = useStyles();
-  let history = useHistory();
-  let location = useLocation();
+  let history = useHistory(); //this is the histroy of the client, 
+  //pushing to this cause the client to move to a different part of the app
+  let location = useLocation(); //need to research this
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [pass, setPass] = useState('');
+  const [pass, setPass] = useState(''); 
+  const [email, setEmail] = useState(''); //need to add email
 
   const { user, updateUser
   } = useContext(UserContext);
@@ -65,7 +67,8 @@ export default function SignUpInitial(props) {
       body: JSON.stringify({
         name: name,
         phone: phone,
-        pass: pass
+        pass: pass,
+        email: email, //email added
       }),
       headers: { 'Content-Type': 'application/json' }
     })
@@ -75,7 +78,8 @@ export default function SignUpInitial(props) {
           id: res,
           isLoggedIn: true,
           name: name,
-          phone: phone
+          phone: phone,
+          email: email, //update with email
         });
         if (res) {
           history.push('/signup2') // if user creation is successful, redirect signup2
@@ -84,7 +88,7 @@ export default function SignUpInitial(props) {
           history.push('/signup') // if user creation fails
         }
       })
-      .then()
+      .then() //might want to delete this
       .catch(err => {
         console.log(err);
       });
@@ -97,6 +101,9 @@ export default function SignUpInitial(props) {
   }
   const handlePassChange = e => {
     setPass(e.target.value);
+  }
+  const handleEmailChange = e => {
+    setEmail(e.target.value);
   }
   return (
     <Container component="main" maxWidth="xs">
@@ -152,6 +159,20 @@ export default function SignUpInitial(props) {
                 autoComplete="current-password"
                 value={pass}
                 onChange={handlePassChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                className={classes.text}
+                id="eMail"
+                label="Email"
+                name="email"
+                autoComplete="email"
+                value={email}
+                onChange={handleEmailChange}
               />
             </Grid>
             <Grid item xs={12}>
