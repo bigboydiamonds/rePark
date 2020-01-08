@@ -127,7 +127,6 @@ userController.verifyUser = async (req, res, next)=>{
 userController.updateUserCar = (req, res, next) => {
   const { car_make, car_model, car_color } = req.body;
   const { id } = req.body;
-  const phoneNum = Number(phone);
   console.log('req.body in userController: ', req.body);
   const text = `
     UPDATE users
