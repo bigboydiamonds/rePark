@@ -1,6 +1,29 @@
 const path = require('path');
-const { User } = require('../models/userModels');
+const db = require('../models/data');
 
+const userController = {};
+
+userController.createUser = (req, res, next) => {
+  const { name, phone, pass } = req.body;
+  const phoneNum = Number(phone);
+
+  const text = `
+      INSERT INTO users(name, password, phone_number)
+      values($1, $2, $3);
+  `
+
+  const values = [ name, pass, phoneNum ];
+  console.log('req.body is', req.body);
+
+  console.log('values in this bitch: ', values);
+  db.query(text, values)
+    .then(response => console.log(response))
+    .catch(err => console.log(err))
+
+    next();
+  }
+
+/*
 const userController = {
 
   //Create user controller
@@ -79,4 +102,49 @@ const userController = {
       })
   }
 }
+
+*/
+userController.verifyUser = async (req, res, next)=>{
+  const { phone, pass } = req.body;
+  const phoneNum = Number(phone);
+
+  const text = `
+    SELECT phone_number
+    FROM users
+    WHERE password = '${pass}' AND phone_number = ${phoneNum}
+  `
+
+  await db.query(text)
+  .then(response => {
+    res.locals.id = response.rows[0].phone_number;
+    res.locals.auth = true;
+    console.log(response)
+  })
+  .catch(err => {
+    res.locals.auth = false;
+    console.log(err)})
+
+  next();
+}
+
+userController.updateUserCar = (req, res, next) => {
+  const { car_make, car_model, car_color } = req.body;
+  const { phone } = req.body;
+  const phoneNum = Number(phone);
+
+  const text = `
+    UPDATE users
+    SET car_make = '${car_make}',
+        car_model = '${car_model}',
+        car_color = '${car_color}'
+    WHERE phone_number = ${phoneNum}
+  `
+
+  db.query(text)
+    .then(response =>{console.log(response)})
+    .catch(err => {console.log(err)});
+
+  next();
+}
+
 module.exports = userController;

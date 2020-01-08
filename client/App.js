@@ -50,7 +50,6 @@ const App = () => {
           exact
           component={SignUpSecondary}
         />
-        //TODO: I inserted a temporary path actually another prop should be passed as isLogged in
         <Route
           path="/welcome"
           exact
