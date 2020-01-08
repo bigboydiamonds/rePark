@@ -41,15 +41,20 @@ const useStyles = makeStyles(theme => ({
 
 export default function SignUpSecondary(props) {
   const classes = useStyles();
-
   let history = useHistory();
   const { user, updateUser } = useContext(UserContext);
 
   const handleSubmit = e => {
     e.preventDefault();
+    if (user.car.car_make.length < 1 || user.car.car_model.length < 1 || user.car.car_color.length < 1) {
+      alert(`What you whippin dawg? Don't leave us hangin...`);
+      return
+    }
     fetch("/signup", {
       method: "PUT",
+      credentials: 'include',
       body: JSON.stringify({
+        id: user.id,
         car: {
           car_make: user.car.car_make,
           car_model: user.car.car_model,

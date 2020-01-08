@@ -8,7 +8,7 @@ const Copyright = () => {
       {new Date().getFullYear()}
       {', '}
       <Link color="inherit" href="www.repark.io">
-        reParkLLC
+        DNSpot
       </Link>{' '}
     </Typography>
   );

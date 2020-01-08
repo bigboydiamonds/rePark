@@ -20,7 +20,7 @@ import Copyright from '../CopyrightComponent/Copyright';
 import { UserContext } from '../../contexts/UserContext';
 
 //TODO: Add form validation before user can move on to secondary sign up page
-
+//we need to validate user input on this form.
 const useStyles = makeStyles(theme => ({
   paper: {
     marginTop: theme.spacing(8),
@@ -48,24 +48,36 @@ const useStyles = makeStyles(theme => ({
 
 export default function SignUpInitial(props) {
   const classes = useStyles();
-  let history = useHistory();
-  let location = useLocation();
+  let history = useHistory(); //this is the histroy of the client, 
+  //pushing to this cause the client to move to a different part of the app
+  let location = useLocation(); //need to research this
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [pass, setPass] = useState('');
+  const [pass, setPass] = useState(''); 
+  const [email, setEmail] = useState(''); //need to add email
+
+  //form validation for each field
+  const [verifyName, setVerifyName] = useState({verify: false, helperText: ''});
+  const [verifyPhone, setVerifyPhone] = useState({verify: false, helperText: ''});
+  const [verifyPass, setVerifyPass] = useState({verify: false, helperText: ''});
 
   const { user, updateUser
   } = useContext(UserContext);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (name.length < 1 || phone.length < 1 || pass.length < 1 || email.length < 1) {
+      alert('Please make sure your inputs are correct lil bih');
+      return
+    }
     fetch('/signup', {
       method: 'POST',
       body: JSON.stringify({
         name: name,
         phone: phone,
-        pass: pass
+        pass: pass,
+        email: email, //email added
       }),
       headers: { 'Content-Type': 'application/json' }
     })
@@ -75,7 +87,8 @@ export default function SignUpInitial(props) {
           id: res,
           isLoggedIn: true,
           name: name,
-          phone: phone
+          phone: phone,
+          email: email, //update with email
         });
         if (res) {
           history.push('/signup2') // if user creation is successful, redirect signup2
@@ -84,19 +97,37 @@ export default function SignUpInitial(props) {
           history.push('/signup') // if user creation fails
         }
       })
-      .then()
+      .then() //might want to delete this
       .catch(err => {
         console.log(err);
       });
   }
   const handleNameChange = e => {
     setName(e.target.value);
+    if (e.target.value < 1) {
+      setVerifyName({ verify: true, helperText: 'Invalid format.'});
+    } else {
+      setVerifyName({ verify: false, helperText: ''});
+    }
   }
   const handlePhoneChange = e => {
     setPhone(e.target.value);
+    if (typeof e.target.value !== "number" && e.target.value.length !== 10) {
+      setVerifyPhone({ verify: true, helperText: 'Please enter a 10 digit phone number'});
+    } else {
+      setVerifyPhone({ verify: false, helperText: ''});
+    }
   }
   const handlePassChange = e => {
     setPass(e.target.value);
+    if (e.target.value.length < 7) {
+      setVerifyPass({ verify: true, helperText: 'Password must be at least 6 characters long.'})
+    } else {
+      setVerifyPhone({ verify: false, helperText: ''});
+    }
+  }
+  const handleEmailChange = e => {
+    setEmail(e.target.value);
   }
   return (
     <Container component="main" maxWidth="xs">
@@ -112,6 +143,7 @@ export default function SignUpInitial(props) {
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
+                error={verifyName.verify}
                 autoComplete="name"
                 name="name"
                 variant="outlined"
@@ -123,10 +155,12 @@ export default function SignUpInitial(props) {
                 autoFocus
                 value={name}
                 onChange={handleNameChange}
+                helperText={verifyName.helperText}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
+                error={verifyPhone.verify}
                 variant="outlined"
                 required
                 fullWidth
@@ -137,10 +171,12 @@ export default function SignUpInitial(props) {
                 autoComplete="phoneNum"
                 value={phone}
                 onChange={handlePhoneChange}
+                helperText={verifyPhone.helperText}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
+                error={verifyPass.verify}
                 variant="outlined"
                 required
                 fullWidth
@@ -152,6 +188,21 @@ export default function SignUpInitial(props) {
                 autoComplete="current-password"
                 value={pass}
                 onChange={handlePassChange}
+                helperText={verifyPass.helperText}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                className={classes.text}
+                id="eMail"
+                label="Email"
+                name="email"
+                autoComplete="email"
+                value={email}
+                onChange={handleEmailChange}
               />
             </Grid>
             <Grid item xs={12}>
