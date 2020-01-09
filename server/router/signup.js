@@ -8,16 +8,8 @@ const cookieController = require('../controllers/cookieController');
 
 signup.post('/', userController.createUser, cookieController.setCookie, (req, res) => {
 	const { phone } = req.body;
-<<<<<<< HEAD
-    phoneNum = Number(phone);
-	res.status(200)
-			.cookie('id', phoneNum, {httpOnly: false})
-			.json(phoneNum)
-			// .cookie('id', phoneNum, {httpOnly: false});
-=======
   phoneNum = Number(phone);
-	res.status(200).json(phoneNum);
->>>>>>> b6c1f7107f7b2728b26750639afe82551fd79ae4
+	res.status(200).json(res.locals.userID);
 });
 
 signup.put('/', userController.updateUserCar,
