@@ -168,7 +168,7 @@ const MapComponent = () => {
           latitude,
           user_id: user.id
         }),
-        headers: { 'content-type': 'application/json', 'Accept': 'application/json' }
+        headers: { 'content-type': 'application/json', 'Accept': 'application/json' } //need to hash this out for adding the user's button to the database
       });
     // fetch("/api/parking", {
     //   method: "PATCH",
