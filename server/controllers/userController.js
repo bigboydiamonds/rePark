@@ -106,14 +106,14 @@ userController.verifyUser = async (req, res, next)=>{
   const phoneNum = Number(phone);
 
   const text = `
-    SELECT phone_number
+    SELECT _id
     FROM users
     WHERE password = '${pass}' AND phone_number = ${phoneNum}
   `
 
   await db.query(text)
   .then(response => {
-    res.locals.id = response.rows[0].phone_number;
+    res.locals.id = response.rows[0]._id;
     res.locals.auth = true;
     console.log(response)
   })
