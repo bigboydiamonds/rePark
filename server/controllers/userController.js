@@ -3,7 +3,7 @@ const db = require('../models/data');
 
 const userController = {};
 
-userController.createUser = (req, res, next) => {
+userController.createUser = async (req, res, next) => {
   const { name, phone, pass, email } = req.body;
   const phoneNum = Number(phone);
   const text = `
@@ -13,9 +13,22 @@ userController.createUser = (req, res, next) => {
 
   const values = [ name, pass, phoneNum, email ];
 
-  db.query(text, values)
-    .then(response => console.log(response))
-    .catch(err => console.log(err))
+    await db.query(text, values)
+      .then(response => console.log(response))
+      .catch(err => console.log(err))
+
+  const text2 = `
+      SELECT _id
+      FROM users
+      WHERE phone_number = ${phoneNum}
+      `
+
+    await db.query(text2) 
+      .then(response => {
+        res.locals.userID = response.rows[0]._id;
+        console.log(response);
+      })
+      .catch(err => console.log(err));
 
     next();
   }
