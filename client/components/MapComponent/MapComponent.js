@@ -96,7 +96,7 @@ const MapComponent = () => {
                                                }]);
         })
       })
-  }, 10000)
+  }, 5000)
 
   // setInterval(() => {
 
@@ -122,15 +122,16 @@ const MapComponent = () => {
 
   const [time, setTime] = React.useState(new Date(Date.now()).toUTCString());
 
+  const [available, setAvailable] = React.useState(true);
+  
   const [reserved, setReserved] = React.useState(false);
 
-  const [available, setAvailable] = React.useState(true);
-
-
+  const [taken, setTaken] = React.useState(false);
 
 
   // when the user clicks on the map, add the coordinates into the markers array
   const handleClick = ({ lngLat: [longitude, latitude], target }) => { // the parameter is the PointerEvent in react-map-gl
+    console.log('user state', user)
     console.log('target.className', target.className);
     console.log('Markers in MapComponent: ', markers);
     console.log(markers);
@@ -210,6 +211,7 @@ const MapComponent = () => {
   //reserve button functionality
   const reserveClick = (lat, long) => {
     setReserved(true);
+    setAvailable(false);
     console.log('this is reserved inside reserveClick:', reserved);
     fetch("/api/parking", {
       method: "PATCH",
@@ -230,7 +232,10 @@ const MapComponent = () => {
   }
 
   //taken button - conditionally render
-  const takenButton = (lat, long) => {
+  const takenClick = (lat, long) => {
+    setTaken(true);
+    setAvailable(false);
+    setReserved(false);
     fetch("/api/parking", {
       method: "PATCH",
       body: JSON.stringify({
@@ -268,7 +273,7 @@ const MapComponent = () => {
   const onMarkerDragEnd = ({ lngLat: [longitude, latitude] }) => {
     // logDragEvent('onDragEnd', event);
     setUserMarker(userMarker => [])
-    setUserMarker(userMarker => [{ latitude, longitude, user_name: user.name }]);
+    setUserMarker(userMarker => [{ latitude, longitude, name: user.name, userMark: true }]);
   };
 
   return (
@@ -304,7 +309,7 @@ const MapComponent = () => {
               key={i}
               latitude={park.latitude}
               longitude={park.longitude}
-              user={park.user_name}
+              user={park.name}
               car_make={park.car_make}
               car_model={park.car_model}
               userMark={true}
@@ -374,25 +379,26 @@ const MapComponent = () => {
             > {console.log('selected park',selectedPark)}
               <div style={{ textAlign: 'left', width: '250px', height: '100px' }}>
                 Who parked here: {selectedPark.name || selectedPark.user || user.name}<br />
-                Available today at: {time}<br />
                 Parking coordinates: {selectedPark.latitude}, {selectedPark.longitude}<br />
                 Car: {selectedPark.car_make} {selectedPark.car_model}<br />
                 <br></br>
-                Reserved: {reserved}
+                Available today at: {time}<br />
               </div>
 
               <br></br>
               <br></br>
-              <br></br>
-              <br></br>
 
-              {selectedPark.userMark ? ( //usermark is used as a means to render the SUBMIT SPOT BUTTON
-                  <button onClick={() => availableClick(selectedPark.latitude, selectedPark.longitude, user)}>Submit Spot</button>)
-                : <button onClick={() => reserveClick(selectedPark.latitude, selectedPark.longitude)}>Reserve</button>
-              }  
-              {reserved ? ( //otherwise, we are dealing with other users buttons, render the other options!
-                <button onClick={() => mapsSelector(selectedPark.latitude, selectedPark.longitude)}>Go to Maps</button>
-              ) : null}
+              {selectedPark.userMark ? //usermark is used as a means to render the SUBMIT SPOT BUTTON 
+              (<button onClick={() => availableClick(selectedPark.latitude, selectedPark.longitude, user)}>Submit Spot</button>)
+                : (reserved ? //otherwise, we are dealing with other users buttons, render the other options!
+                  (<div>
+                    <button onClick={() => mapsSelector(selectedPark.latitude, selectedPark.longitude)}>Go to Maps</button>
+                    <button onClick={() => takenClick(selectedPark.latitude, selectedPark.longitude)}>Taken</button>
+                    </div>
+                  ) : (!(selectedPark.name== user.name) ? (<button onClick={() => reserveClick(selectedPark.latitude, selectedPark.longitude)}>Reserve</button>): null))
+              }    
+
+
             </Popup>
           ) : null}
           <button id="add_pin" style={{ position: 'absolute', bottom: '15vh', left: '4vw', height: '45px', width: '85px', borderRadius: '2vw', fontSize: '15px', background: '#2B7BF0', color: 'white' }}>
