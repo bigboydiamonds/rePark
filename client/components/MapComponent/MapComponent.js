@@ -9,17 +9,6 @@ import './map.css';
 const mongoParkingSpots = [{ latitude: 33.985673, longitude: -118.455888, user_ID: 10000, user_name: 'Catherine', wait_time: '10' },
 { latitude: 33.982185, longitude: -118.438087, user_ID: 10001, user_name: 'Amruth', wait_time: '15' }];
 
-function mapsSelector(lat, long) {
-  console.log("in map selector")
-  if /* if we're on iOS, open in Apple Maps */
-    ((navigator.platform.indexOf("iPhone") != -1) || 
-     (navigator.platform.indexOf("iPad") != -1) || 
-     (navigator.platform.indexOf("iPod") != -1))
-    window.open(`maps://maps.google.com/maps?daddr=${lat},${long}&amp;ll=`);
-else /* else use Google */
-    window.open(`https://maps.google.com/maps?daddr=${lat},${long}&amp;ll=`);
-}
-
 
 const MapComponent = () => {
   function useInterval(callback, delay) {
@@ -133,11 +122,56 @@ const MapComponent = () => {
       });
     }
 
+    //navigation google maps redirecting button handler 
+    function mapsSelector(lat, long) {
+      console.log("in map selector")
+      if /* if we're on iOS, open in Apple Maps */
+        ((navigator.platform.indexOf("iPhone") != -1) || 
+         (navigator.platform.indexOf("iPad") != -1) || 
+         (navigator.platform.indexOf("iPod") != -1))
+        window.open(`maps://maps.google.com/maps?daddr=${lat},${long}&amp;ll=`);
+    else /* else use Google */
+        window.open(`https://maps.google.com/maps?daddr=${lat},${long}&amp;ll=`);
+    } 
+
     // if the user clicks on the add pin button, toggle the state for shouldAddPin
     if (target.id === 'add_pin') {
       setShouldAddPin(shouldAddPin => !shouldAddPin);
     }
   };
+
+  //navigation google maps redirecting button handler 
+  function mapsSelector(lat, long) {
+    console.log("in map selector")
+    if /* if we're on iOS, open in Apple Maps */
+      ((navigator.platform.indexOf("iPhone") != -1) || 
+        (navigator.platform.indexOf("iPad") != -1) || 
+        (navigator.platform.indexOf("iPod") != -1))
+      window.open(`maps://maps.google.com/maps?daddr=${lat},${long}&amp;ll=`);
+  else /* else use Google */
+      window.open(`https://maps.google.com/maps?daddr=${lat},${long}&amp;ll=`);
+  } 
+
+  //reserve button functionality
+  const reserveClick = (lat, long) => {
+    fetch("/api/parking", {
+      method: "PATCH",
+      body: JSON.stringify({
+        id: user.id,
+        latitude: lat,
+        longitude: long,
+        available: false,
+        reserved: true,
+        taken: false,
+      }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    }).then(res => {
+      console.log('Patch completed', res)
+    })
+  }
+  
 
   const [events, setEvents] = React.useState({});
 
@@ -237,6 +271,7 @@ const MapComponent = () => {
                 Parking coordinates: {selectedPark.latitude}, {selectedPark.longitude}
               </div>
               <button onClick={() => mapsSelector(selectedPark.latitude, selectedPark.longitude)}>Go to Maps</button>
+              <button onClick={() => reserveClick(selectedPark.latitude, selectedPark.longitude)}>Reserve</button>
             </Popup>
           ) : null}
           <button id="add_pin" style={{ position: 'absolute', bottom: '15vh', left: '4vw', height: '45px', width: '85px', borderRadius: '2vw', fontSize: '15px', background: '#2B7BF0', color: 'white' }}>
