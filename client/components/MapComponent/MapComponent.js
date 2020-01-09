@@ -39,6 +39,18 @@ const MapComponent = () => {
     zoom: 10
   });
 
+    //navigation google maps redirecting button handler 
+    function mapsSelector(lat, long) {
+      console.log("in map selector")
+      if /* if we're on iOS, open in Apple Maps */
+        ((navigator.platform.indexOf("iPhone") != -1) || 
+         (navigator.platform.indexOf("iPad") != -1) || 
+         (navigator.platform.indexOf("iPod") != -1))
+        window.open(`maps://maps.google.com/maps?daddr=${lat},${long}&amp;ll=`);
+    else /* else use Google */
+        window.open(`https://maps.google.com/maps?daddr=${lat},${long}&amp;ll=`);
+    } 
+
   // selectedPark is a state variable that contains which map pin the user has clicked
   const [selectedPark, setSelectedPark] = useState(null);
 
@@ -69,7 +81,7 @@ const MapComponent = () => {
           const latitude = Number(latitudeVar);
           const longitudeVar = location.longitude;
           const longitude = Number(longitudeVar);
-          setMarkers(markers => [...markers, { latitude, longitude }]);
+          setMarkers(markers => [...markers, { latitude, longitude, parking_id: location.parking_id }]);
         })
       })
   }, 10000)
@@ -97,6 +109,13 @@ const MapComponent = () => {
   const { user } = useContext(UserContext);
 
   const [time, setTime] = React.useState(new Date(Date.now()).toUTCString());
+
+  const [reserved, setReserved] = React.useState(false);
+
+  const [available, setAvailable] = React.useState(true);
+
+
+
 
   // when the user clicks on the map, add the coordinates into the markers array
   const handleClick = ({ lngLat: [longitude, latitude], target }) => { // the parameter is the PointerEvent in react-map-gl
@@ -127,17 +146,6 @@ const MapComponent = () => {
       });
     }
 
-    //navigation google maps redirecting button handler 
-    function mapsSelector(lat, long) {
-      console.log("in map selector")
-      if /* if we're on iOS, open in Apple Maps */
-        ((navigator.platform.indexOf("iPhone") != -1) || 
-         (navigator.platform.indexOf("iPad") != -1) || 
-         (navigator.platform.indexOf("iPod") != -1))
-        window.open(`maps://maps.google.com/maps?daddr=${lat},${long}&amp;ll=`);
-    else /* else use Google */
-        window.open(`https://maps.google.com/maps?daddr=${lat},${long}&amp;ll=`);
-    } 
 
     // if the user clicks on the add pin button, toggle the state for shouldAddPin
     if (target.id === 'add_pin') {
@@ -145,20 +153,32 @@ const MapComponent = () => {
     }
   };
 
-  //navigation google maps redirecting button handler 
-  function mapsSelector(lat, long) {
-    console.log("in map selector")
-    if /* if we're on iOS, open in Apple Maps */
-      ((navigator.platform.indexOf("iPhone") != -1) || 
-        (navigator.platform.indexOf("iPad") != -1) || 
-        (navigator.platform.indexOf("iPod") != -1))
-      window.open(`maps://maps.google.com/maps?daddr=${lat},${long}&amp;ll=`);
-  else /* else use Google */
-      window.open(`https://maps.google.com/maps?daddr=${lat},${long}&amp;ll=`);
-  } 
+  //available button functionality
+  const availableClick = (lat, long) => {
+    setAvailable(false);
+    fetch("/api/parking", {
+      method: "PATCH",
+      body: JSON.stringify({
+        id: user.id,
+        latitude: lat,
+        longitude: long,
+        available: available,
+        reserved: reserved,
+        taken: false,
+      }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    }).then(res => {
+      console.log('Available changed', res)
+    })
+  }
+  
 
   //reserve button functionality
   const reserveClick = (lat, long) => {
+    setReserved(true);
+    console.log('this is reserved inside reserveClick:', reserved);
     fetch("/api/parking", {
       method: "PATCH",
       body: JSON.stringify({
@@ -166,7 +186,7 @@ const MapComponent = () => {
         latitude: lat,
         longitude: long,
         available: false,
-        reserved: true,
+        reserved: reserved,
         taken: false,
       }),
       headers: {
@@ -294,13 +314,15 @@ const MapComponent = () => {
               }}
             >
               <div style={{ textAlign: 'left', width: '250px', height: '100px' }}>
-                Who parked here: {selectedPark.user_name || user.name}<br />
+                Who parked here: ParkingNo.{selectedPark.parking_id || user.name}<br />
                 Available today at: {time}<br />
-                Parking coordinates: {selectedPark.latitude}, {selectedPark.longitude}
-                Reserved: 
+                Parking coordinates: {selectedPark.latitude}, {selectedPark.longitude}<br />
+                Reserved: {reserved}
               </div>
-              <button onClick={() => mapsSelector(selectedPark.latitude, selectedPark.longitude)}>Go to Maps</button>
-              <button onClick={() => reserveClick(selectedPark.latitude, selectedPark.longitude)}>Reserve</button>
+              <button onClick={() => reserveClick(selectedPark.latitude, selectedPark.longitude)}>Reserve</button>&ensp;
+              {reserved ? (
+                <button onClick={() => mapsSelector(selectedPark.latitude, selectedPark.longitude)}>Go to Maps</button>
+              ): null}
             </Popup>
           ) : null}
           <button id="add_pin" style={{ position: 'absolute', bottom: '15vh', left: '4vw', height: '45px', width: '85px', borderRadius: '2vw', fontSize: '15px', background: '#2B7BF0', color: 'white' }}>
