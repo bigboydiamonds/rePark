@@ -4,14 +4,17 @@ const apiController = {};
 
 apiController.create = async (req, res, next) => {
     const { longitude, latitude, id } = req.body;
-    const time = new Date(Date.UTC(96, 1, 2, 3, 4, 5)).toUTCString();
-
+    // const time = new Date(Date.UTC(2020, 1)).toUTCString();
+  const today = new Date();
+  const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+  const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+  const dateTime = date+' '+time;
     const text = `
         INSERT INTO parking(longitude, latitude, time, available, reserved, taken)
         values($1, $2, $3, $4, $5, $6);
     `
 
-    const values = [longitude, latitude, time, true, false, false ];
+    const values = [longitude, latitude, dateTime, true, false, false ];
 
    await db.query(text, values)
         .then(response => console.log(response))
@@ -27,7 +30,7 @@ apiController.findAll = async (req, res, next) =>{
     `
     await db.query(text)
     .then(response =>{
-        console.log('response.rows within apicontroller is: ',response.rows);
+        // console.log('response.rows within apicontroller is: ',response.rows);
         res.locals.pins = response.rows;
         console.log('Locations are updating!');
     })
