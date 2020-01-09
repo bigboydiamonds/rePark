@@ -116,7 +116,7 @@ const MapComponent = () => {
         body: JSON.stringify({
           longitude,
           latitude,
-          id: user.id
+          user_id: user.id
         }),
         headers: { 'content-type': 'application/json', 'Accept': 'application/json' }
       });
@@ -172,6 +172,25 @@ const MapComponent = () => {
     })
   }
   
+  //taken button - conditionally render
+  const takenButton = (lat, long) => {
+    fetch("/api/parking", {
+      method: "PATCH",
+      body: JSON.stringify({
+        id: user.id,
+        latitudw: lat,
+        longitude: long,
+        available: false,
+        reserved: false,
+        taken: true
+      }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    }).then(res => {
+      console.log('parking spot is taken');
+    })
+  }
 
   const [events, setEvents] = React.useState({});
 
@@ -240,7 +259,6 @@ const MapComponent = () => {
               </button>
             </Marker>
           ))}
-
           {mongoParkingSpots.map(park => ( // map the MongoDB array of parking spots
             <Marker // this JSX element is imported from MapBox that will mark different locations on the map
               key={park.user_ID} // each parking spot should have a unique key of who were in the spot
@@ -269,6 +287,7 @@ const MapComponent = () => {
                 Who parked here: {selectedPark.user_name || user.name}<br />
                 Available today at: {time}<br />
                 Parking coordinates: {selectedPark.latitude}, {selectedPark.longitude}
+                Reserved: 
               </div>
               <button onClick={() => mapsSelector(selectedPark.latitude, selectedPark.longitude)}>Go to Maps</button>
               <button onClick={() => reserveClick(selectedPark.latitude, selectedPark.longitude)}>Reserve</button>
