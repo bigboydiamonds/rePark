@@ -5,7 +5,10 @@ const apiController = require('../controllers/apiController');
   
 //jk
 api.post('/parking', apiController.create, apiController.findOne, (req, res) => {
-    res.status(200).json(res.locals.id);
+    res.status(200).json({parking_id: res.locals.id,
+                          id: req.body.user_id,
+                          name: res.locals.name
+    });
 })
 
 api.get('/parking', apiController.findAll, (req, res)=>{

@@ -25,12 +25,14 @@ apiController.create = async (req, res, next) => {
 
 apiController.findAll = async (req, res, next) =>{
     const text = `
-        SELECT * 
-        FROM parking;
+        SELECT name, _id, car_make, car_model, parking_spot, longitude, latitude, time, available, reserved, taken
+        FROM users
+        LEFT JOIN parking
+        ON parking_spot = parking_id;
     `
     await db.query(text)
     .then(response =>{
-        // console.log('response.rows within apicontroller is: ',response.rows);
+        console.log('response.rows within apicontroller is: ',response.rows);
         res.locals.pins = response.rows;
         console.log('Locations are updating!');
     })
@@ -67,6 +69,19 @@ apiController.findOne = async (req, res, next) =>{
   const values = [res.locals.id];
   await db.query(text2)
     .then(response => {console.log(response)})
+    .catch(err => {console.log(err)})
+
+  const text3 = `
+        SELECT _id, name
+        FROM users
+        WHERE _id = ${req.body.user_id}
+  `
+
+  await db.query(text3)
+    .then(response => {
+      res.locals.name = response.rows[0].name;
+      console.log(response);
+    })
     .catch(err => {console.log(err)})
 
   next();

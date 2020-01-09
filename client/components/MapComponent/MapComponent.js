@@ -86,7 +86,14 @@ const MapComponent = () => {
           const latitude = Number(latitudeVar);
           const longitudeVar = location.longitude;
           const longitude = Number(longitudeVar);
-          setMarkers(markers => [...markers, { latitude, longitude, parking_id: location.parking_id }]);
+          setMarkers(markers => [...markers, { latitude,
+                                               longitude,
+                                                parking_id: location.parking_id, 
+                                                id: location.id, 
+                                                name: location.name,
+                                                car_make: location.car_make,
+                                                car_model: location.car_model
+                                               }]);
         })
       })
   }, 10000)
@@ -129,7 +136,7 @@ const MapComponent = () => {
     console.log(markers);
     if (target.className !== 'mapboxgl-ctrl-geocoder--input' && shouldAddPin) { // as long as the user is not clicking in the search box
       // console.log(`clicked, longitude: ${longitude}, latitude: ${latitude}`);
-      setUserMarker(userMarker => [{ latitude, longitude, user_ID: user.ID, user_name: user.name, userMark: true }]); // add a marker at the location
+      setUserMarker(userMarker => [{ latitude, longitude, user_ID: user.id, user_name: user.name, car_make: user.car.car_make, car_model: user.car.car_model, userMark: true }]); // add a marker at the location
       // console.log('markers: ', markers);
       setShouldAddPin(shouldAddPin => !shouldAddPin);
 
@@ -139,7 +146,7 @@ const MapComponent = () => {
         return utcDateAdd10Min.toLocaleTimeString('en-US'); // this will set time to be the current time + 10 minutes, format example: 5:20:08 PM
       });
 
-      // // send the coordinates and user id to the backend
+      // // // send the coordinates and user id to the backend
       // fetch('/api/parking', {
       //   method: 'POST',
       //   body: JSON.stringify({
@@ -148,7 +155,18 @@ const MapComponent = () => {
       //     user_id: user.id
       //   }),
       //   headers: { 'content-type': 'application/json', 'Accept': 'application/json' }
-      // });
+      // })
+      //   .then(res => res.json())
+      //   .then(res => {
+      //     updateUser({
+      //       id: res.id,
+      //       name: res.name,
+      //       parking_id: res.parking_id
+      //   })
+      // })
+      //   .catch(err => {
+      //     console.log(err);
+      //   })
     }
 
 
@@ -164,8 +182,8 @@ const MapComponent = () => {
           fetch('/api/parking', {
         method: 'POST',
         body: JSON.stringify({
-          longitude,
-          latitude,
+          longitude:long,
+          latitude:lat,
           user_id: user.id
         }),
         headers: { 'content-type': 'application/json', 'Accept': 'application/json' } //need to hash this out for adding the user's button to the database
@@ -287,6 +305,8 @@ const MapComponent = () => {
               latitude={park.latitude}
               longitude={park.longitude}
               user={park.user_name}
+              car_make={park.car_make}
+              car_model={park.car_model}
               userMark={true}
               draggable={true}
               onDragStart={onMarkerDragStart}
@@ -309,7 +329,9 @@ const MapComponent = () => {
               key={i}
               latitude={park.latitude}
               longitude={park.longitude}
-              user={park.user_name}
+              user={park.name}
+              car_make={park.car_make}
+              car_model={park.car_model}
 
             >
               <button className="marker-btn" onClick={(e) => {
@@ -351,11 +373,19 @@ const MapComponent = () => {
               }}
             > {console.log('selected park',selectedPark)}
               <div style={{ textAlign: 'left', width: '250px', height: '100px' }}>
-                Who parked here: ParkingNo.{selectedPark.parking_id || selectedPark.user || user.name}<br />
+                Who parked here: {selectedPark.name || selectedPark.user || user.name}<br />
                 Available today at: {time}<br />
                 Parking coordinates: {selectedPark.latitude}, {selectedPark.longitude}<br />
+                Car: {selectedPark.car_make} {selectedPark.car_model}<br />
+                <br></br>
                 Reserved: {reserved}
               </div>
+
+              <br></br>
+              <br></br>
+              <br></br>
+              <br></br>
+
               {selectedPark.userMark ? ( //usermark is used as a means to render the SUBMIT SPOT BUTTON
                   <button onClick={() => availableClick(selectedPark.latitude, selectedPark.longitude, user)}>Submit Spot</button>)
                 : <button onClick={() => reserveClick(selectedPark.latitude, selectedPark.longitude)}>Reserve</button>

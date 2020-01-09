@@ -65,6 +65,7 @@ export default function SignUpSecondary(props) {
     })
       .then(res => res.json())
       .then(res => {
+        console.log('cookie showing up on the front end: ',document.cookie);
         console.log("user response: ", res.successfulSignup);
         if (res.successfulSignup === true) {
           history.push("/main");
