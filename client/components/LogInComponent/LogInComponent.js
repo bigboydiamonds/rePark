@@ -78,7 +78,12 @@ const LogInComponent = props => {
       .then(res => {
         if (res.auth === true) {
           updateUser({
-            id: res.id,
+            id: res.userinfo._id,
+            name: res.userinfo.name,
+            car: {
+              car_make: res.userinfo.car_make,
+              car_model: res.userinfo.car_model,
+            },
             isLoggedIn: true
           })
           history.push("/main");

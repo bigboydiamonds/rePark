@@ -25,12 +25,14 @@ apiController.create = async (req, res, next) => {
 
 apiController.findAll = async (req, res, next) =>{
     const text = `
-        SELECT * 
-        FROM parking;
+        SELECT name, _id, car_make, car_model, parking_spot, longitude, latitude, time, available, reserved, taken
+        FROM users
+        LEFT JOIN parking
+        ON parking_spot = parking_id;
     `
     await db.query(text)
     .then(response =>{
-        // console.log('response.rows within apicontroller is: ',response.rows);
+        console.log('response.rows within apicontroller is: ',response.rows);
         res.locals.pins = response.rows;
         console.log('Locations are updating!');
     })

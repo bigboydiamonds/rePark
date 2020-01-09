@@ -9,6 +9,7 @@ import './map.css';
 const mongoParkingSpots = [{ latitude: 33.985673, longitude: -118.455888, user_ID: 10000, user_name: 'Catherine', wait_time: '10' },
 { latitude: 33.982185, longitude: -118.438087, user_ID: 10001, user_name: 'Amruth', wait_time: '15' }];
 
+const reservedSpace = [];
 
 const MapComponent = () => {
   function useInterval(callback, delay) {
@@ -39,22 +40,26 @@ const MapComponent = () => {
     zoom: 10
   });
 
-    //navigation google maps redirecting button handler 
-    function mapsSelector(lat, long) {
-      console.log("in map selector")
-      if /* if we're on iOS, open in Apple Maps */
-        ((navigator.platform.indexOf("iPhone") != -1) || 
-         (navigator.platform.indexOf("iPad") != -1) || 
-         (navigator.platform.indexOf("iPod") != -1))
-        window.open(`maps://maps.google.com/maps?daddr=${lat},${long}&amp;ll=`);
+
+
+  //navigation google maps redirecting button handler 
+  function mapsSelector(lat, long) {
+    console.log("in map selector")
+    if /* if we're on iOS, open in Apple Maps */
+      ((navigator.platform.indexOf("iPhone") != -1) ||
+      (navigator.platform.indexOf("iPad") != -1) ||
+      (navigator.platform.indexOf("iPod") != -1))
+      window.open(`maps://maps.google.com/maps?daddr=${lat},${long}&amp;ll=`);
     else /* else use Google */
-        window.open(`https://maps.google.com/maps?daddr=${lat},${long}&amp;ll=`);
-    } 
+      window.open(`https://maps.google.com/maps?daddr=${lat},${long}&amp;ll=`);
+  }
 
   // selectedPark is a state variable that contains which map pin the user has clicked
   const [selectedPark, setSelectedPark] = useState(null);
 
   const [markers, setMarkers] = React.useState([]);
+
+  const [userMarker, setUserMarker] = React.useState([]); //this is the space that the user icon will be held until it is 'ready' to be added to datbase
   // this method will make the map pin popup go away when escape key is pressed
   useEffect(() => {
     const listener = e => {
@@ -81,7 +86,14 @@ const MapComponent = () => {
           const latitude = Number(latitudeVar);
           const longitudeVar = location.longitude;
           const longitude = Number(longitudeVar);
-          setMarkers(markers => [...markers, { latitude, longitude, parking_id: location.parking_id }]);
+          setMarkers(markers => [...markers, { latitude,
+                                               longitude,
+                                                parking_id: location.parking_id, 
+                                                id: location.id, 
+                                                name: location.name,
+                                                car_make: location.car_make,
+                                                car_model: location.car_model
+                                               }]);
         })
       })
   }, 10000)
@@ -124,7 +136,7 @@ const MapComponent = () => {
     console.log(markers);
     if (target.className !== 'mapboxgl-ctrl-geocoder--input' && shouldAddPin) { // as long as the user is not clicking in the search box
       // console.log(`clicked, longitude: ${longitude}, latitude: ${latitude}`);
-      setMarkers(markers => [...markers, { latitude, longitude, user_ID: user.id, user_name: user.name }]); // add a marker at the location
+      setUserMarker(userMarker => [{ latitude, longitude, user_ID: user.id, user_name: user.name, car_make: user.car.car_make, car_model: user.car.car_model, userMark: true }]); // add a marker at the location
       // console.log('markers: ', markers);
       setShouldAddPin(shouldAddPin => !shouldAddPin);
 
@@ -134,16 +146,30 @@ const MapComponent = () => {
         return utcDateAdd10Min.toLocaleTimeString('en-US'); // this will set time to be the current time + 10 minutes, format example: 5:20:08 PM
       });
 
-      // send the coordinates and user id to the backend
-      fetch('/api/parking', {
-        method: 'POST',
-        body: JSON.stringify({
-          longitude,
-          latitude,
-          user_id: user.id
-        }),
-        headers: { 'content-type': 'application/json', 'Accept': 'application/json' }
-      })
+      // // // send the coordinates and user id to the backend
+      // fetch('/api/parking', {
+      //   method: 'POST',
+      //   body: JSON.stringify({
+      //     longitude,
+      //     latitude,
+      //     user_id: user.id
+      //   }),
+      //   headers: { 'content-type': 'application/json', 'Accept': 'application/json' }
+      // })
+      //   .then(res => res.json())
+      //   .then(res => {
+      //     updateUser({
+      //       id: res.id,
+      //       name: res.name,
+      //       parking_id: res.parking_id
+      //   })
+      // })
+      //   .catch(err => {
+      //     console.log(err);
+      //   })
+    }
+
+
     // if the user clicks on the add pin button, toggle the state for shouldAddPin
     if (target.id === 'add_pin') {
       setShouldAddPin(shouldAddPin => !shouldAddPin);
@@ -153,24 +179,33 @@ const MapComponent = () => {
   //available button functionality
   const availableClick = (lat, long) => {
     setAvailable(false);
-    fetch("/api/parking", {
-      method: "PATCH",
-      body: JSON.stringify({
-        id: user.id,
-        latitude: lat,
-        longitude: long,
-        available: available,
-        reserved: reserved,
-        taken: false,
-      }),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    }).then(res => {
-      console.log('Available changed', res)
-    })
+          fetch('/api/parking', {
+        method: 'POST',
+        body: JSON.stringify({
+          longitude:long,
+          latitude:lat,
+          user_id: user.id
+        }),
+        headers: { 'content-type': 'application/json', 'Accept': 'application/json' } //need to hash this out for adding the user's button to the database
+      });
+    // fetch("/api/parking", {
+    //   method: "PATCH",
+    //   body: JSON.stringify({
+    //     id: user.id,
+    //     latitude: lat,
+    //     longitude: long,
+    //     available: available,
+    //     reserved: reserved,
+    //     taken: false,
+    //   }),
+    //   headers: {
+    //     "Content-Type": "application/json"
+    //   }
+    // }).then(res => {
+    //   console.log('Available changed', res)
+    // })
   }
-  
+
 
   //reserve button functionality
   const reserveClick = (lat, long) => {
@@ -193,7 +228,7 @@ const MapComponent = () => {
       console.log('Patch completed', res)
     })
   }
-  
+
   //taken button - conditionally render
   const takenButton = (lat, long) => {
     fetch("/api/parking", {
@@ -220,18 +255,20 @@ const MapComponent = () => {
   //   setEvents(events => { [...events, { [name]: lngLat }] });
   // };
 
-  const onMarkerDragStart = ({ lngLat: [longitude,latitude] }) => {
+    // const [userMarker, setUserMarker] = React.useState([]);
+
+  const onMarkerDragStart = ({ lngLat: [longitude, latitude] }) => {
     console.log("dragging started");
   };
 
-  const onMarkerDrag = ({ lngLat: [longitude,latitude] }) => {
+  const onMarkerDrag = ({ lngLat: [longitude, latitude] }) => {
     console.log("dragging icon");
   };
 
-  const onMarkerDragEnd = ({ lngLat: [longitude,latitude] }) => {
+  const onMarkerDragEnd = ({ lngLat: [longitude, latitude] }) => {
     // logDragEvent('onDragEnd', event);
-    setMarkers(markers.filter(item => item.user_name !== user.name))
-    setMarkers(markers => [...markers, { latitude, longitude, user_name: user.name }]);
+    setUserMarker(userMarker => [])
+    setUserMarker(userMarker => [{ latitude, longitude, user_name: user.name }]);
   };
 
   return (
@@ -262,17 +299,40 @@ const MapComponent = () => {
             trackUserLocation={true}
             showUserLocation={true}
           />
-
-          {markers.map((park, i) => ( // map the array of parking spots
+          {userMarker.map((park, i) => ( // map the array of the user parking spots
             <Marker // this JSX element is imported from MapBox that will mark different locations on the map
               key={i}
               latitude={park.latitude}
               longitude={park.longitude}
-              user = {park.user_name}
+              user={park.user_name}
+              car_make={park.car_make}
+              car_model={park.car_model}
+              userMark={true}
               draggable={true}
               onDragStart={onMarkerDragStart}
               onDrag={onMarkerDrag}
               onDragEnd={onMarkerDragEnd}
+            >
+              <button className="marker-btn" onClick={(e) => {
+
+                console.log(userMarker);
+                e.preventDefault();
+                console.log('clicked: ', park);
+                setSelectedPark(park); // when the map pin button is clicked, we will set the state of selectedPark to be the current park the user clicked
+              }}>
+                <img src={marker} style={{ backgroundColor: 'red' }} width="15" height="20" />
+              </button>
+            </Marker>
+          ))}
+          {markers.map((park, i) => ( // map the array of databased parking spots
+            <Marker // this JSX element is imported from MapBox that will mark different locations on the map
+              key={i}
+              latitude={park.latitude}
+              longitude={park.longitude}
+              user={park.name}
+              car_make={park.car_make}
+              car_model={park.car_model}
+
             >
               <button className="marker-btn" onClick={(e) => {
 
@@ -290,7 +350,7 @@ const MapComponent = () => {
               key={park.user_ID} // each parking spot should have a unique key of who were in the spot
               latitude={park.latitude}
               longitude={park.longitude}
-              user = {park.user_name}
+              user={park.user_name}
             >
               <button className="marker-btn" onClick={(e) => {
                 e.preventDefault();
@@ -304,22 +364,35 @@ const MapComponent = () => {
 
           {selectedPark ? ( // ternary operator: if there is a selectedPark, show a popup window
             <Popup
+
               latitude={selectedPark.latitude}
               longitude={selectedPark.longitude}
               onClose={() => { // when the x on the top right of the pop up is clicked
+
                 setSelectedPark(null); // set the state of selectedPark back to null
               }}
-            >
+            > {console.log('selected park',selectedPark)}
               <div style={{ textAlign: 'left', width: '250px', height: '100px' }}>
-                Who parked here: ParkingNo.{selectedPark.parking_id || user.name}<br />
+                Who parked here: {selectedPark.name || selectedPark.user || user.name}<br />
                 Available today at: {time}<br />
                 Parking coordinates: {selectedPark.latitude}, {selectedPark.longitude}<br />
+                Car: {selectedPark.car_make} {selectedPark.car_model}<br />
+                <br></br>
                 Reserved: {reserved}
               </div>
-              <button onClick={() => reserveClick(selectedPark.latitude, selectedPark.longitude)}>Reserve</button>&ensp;
-              {reserved ? (
+
+              <br></br>
+              <br></br>
+              <br></br>
+              <br></br>
+
+              {selectedPark.userMark ? ( //usermark is used as a means to render the SUBMIT SPOT BUTTON
+                  <button onClick={() => availableClick(selectedPark.latitude, selectedPark.longitude, user)}>Submit Spot</button>)
+                : <button onClick={() => reserveClick(selectedPark.latitude, selectedPark.longitude)}>Reserve</button>
+              }  
+              {reserved ? ( //otherwise, we are dealing with other users buttons, render the other options!
                 <button onClick={() => mapsSelector(selectedPark.latitude, selectedPark.longitude)}>Go to Maps</button>
-              ): null}
+              ) : null}
             </Popup>
           ) : null}
           <button id="add_pin" style={{ position: 'absolute', bottom: '15vh', left: '4vw', height: '45px', width: '85px', borderRadius: '2vw', fontSize: '15px', background: '#2B7BF0', color: 'white' }}>

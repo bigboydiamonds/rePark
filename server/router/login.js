@@ -7,7 +7,7 @@ const userController = require('../controllers/userController');
 
 
 login.post('/', userController.verifyUser, (req, res) => {
-    res.status(200).json({ id: res.locals.id, auth: res.locals.auth })
+    res.status(200).json({ userinfo: res.locals.userinfo, auth: res.locals.auth })
   });
 
 module.exports = login;
