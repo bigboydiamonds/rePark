@@ -63,9 +63,12 @@ const MapComponent = () => {
     })
       .then((res) => res.json())
       .then((pinLocations) => {
+        setMarkers(markers => [])
         pinLocations.forEach((location) => {
-          const latitude = location.latitude;
-          const longitude = location.longitude;
+          const latitudeVar = location.latitude;
+          const latitude = Number(latitudeVar);
+          const longitudeVar = location.longitude;
+          const longitude = Number(longitudeVar);
           setMarkers(markers => [...markers, { latitude, longitude }]);
         })
       })
@@ -98,6 +101,7 @@ const MapComponent = () => {
   // when the user clicks on the map, add the coordinates into the markers array
   const handleClick = ({ lngLat: [longitude, latitude], target }) => { // the parameter is the PointerEvent in react-map-gl
     console.log('target.className', target.className);
+    console.log('Markers in MapComponent: ', markers);
     console.log(markers);
     if (target.className !== 'mapboxgl-ctrl-geocoder--input' && shouldAddPin) { // as long as the user is not clicking in the search box
       // console.log(`clicked, longitude: ${longitude}, latitude: ${latitude}`);
@@ -179,7 +183,7 @@ const MapComponent = () => {
       method: "PATCH",
       body: JSON.stringify({
         id: user.id,
-        latitudw: lat,
+        latitude: lat,
         longitude: long,
         available: false,
         reserved: false,
