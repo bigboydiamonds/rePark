@@ -27,12 +27,15 @@ apiController.findAll = async (req, res, next) =>{
     `
     await db.query(text)
     .then(response =>{
+        console.log('response.rows within apicontroller is: ',response.rows);
         res.locals.pins = response.rows;
-        console.log(response)
+        console.log('Locations are updating!');
     })
     .catch(err => {
         console.log(err)
     })
+
+    next();
 }
 
 apiController.findOne = async (req, res, next) =>{

@@ -20,7 +20,7 @@ app.use('/signup', signup);
 
 app.use('/login', login);
 
-// app.use('/api', api);
+app.use('/api', api);
 
 if (process.env.NODE_ENV === 'production') {
   app.use('/build', express.static(path.join(__dirname, '../build')));
@@ -65,7 +65,7 @@ app.get('/index', (req, res) => {
 //   })
 // });
 
-app.use('/api', api);
+// app.use('/api', api);
 
 // catch-all route handler for any requests to an unknown route
 app.use((req, res) => res.sendStatus(404));
