@@ -69,6 +69,19 @@ apiController.findOne = async (req, res, next) =>{
     .then(response => {console.log(response)})
     .catch(err => {console.log(err)})
 
+  const text3 = `
+        SELECT _id, name
+        FROM users
+        WHERE _id = ${req.body.user_id}
+  `
+
+  await db.query(text3)
+    .then(response => {
+      res.locals.name = response.rows[0].name;
+      console.log(response);
+    })
+    .catch(err => {console.log(err)})
+
   next();
 }
 

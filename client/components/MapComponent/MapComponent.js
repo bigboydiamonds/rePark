@@ -124,7 +124,7 @@ const MapComponent = () => {
     console.log(markers);
     if (target.className !== 'mapboxgl-ctrl-geocoder--input' && shouldAddPin) { // as long as the user is not clicking in the search box
       // console.log(`clicked, longitude: ${longitude}, latitude: ${latitude}`);
-      setMarkers(markers => [...markers, { latitude, longitude, user_ID: user.ID, user_name: user.name }]); // add a marker at the location
+      setMarkers(markers => [...markers, { latitude, longitude, user_ID: user.id, user_name: user.name }]); // add a marker at the location
       // console.log('markers: ', markers);
       setShouldAddPin(shouldAddPin => !shouldAddPin);
 
@@ -143,10 +143,7 @@ const MapComponent = () => {
           user_id: user.id
         }),
         headers: { 'content-type': 'application/json', 'Accept': 'application/json' }
-      });
-    }
-
-
+      })
     // if the user clicks on the add pin button, toggle the state for shouldAddPin
     if (target.id === 'add_pin') {
       setShouldAddPin(shouldAddPin => !shouldAddPin);
