@@ -9,7 +9,10 @@ const cookieController = require('../controllers/cookieController');
 signup.post('/', userController.createUser, (req, res) => {
 	const { phone } = req.body;
     phoneNum = Number(phone);
-	res.status(200).json(phoneNum);
+	res.status(200)
+			.cookie('id', phoneNum, {httpOnly: false})
+			.json(phoneNum)
+			// .cookie('id', phoneNum, {httpOnly: false});
 });
 
 signup.put('/', userController.updateUserCar,
