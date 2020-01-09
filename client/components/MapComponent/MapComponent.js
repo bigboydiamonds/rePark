@@ -102,9 +102,10 @@ const MapComponent = () => {
   const handleClick = ({ lngLat: [longitude, latitude], target }) => { // the parameter is the PointerEvent in react-map-gl
     console.log('target.className', target.className);
     console.log('Markers in MapComponent: ', markers);
+    console.log(markers);
     if (target.className !== 'mapboxgl-ctrl-geocoder--input' && shouldAddPin) { // as long as the user is not clicking in the search box
       // console.log(`clicked, longitude: ${longitude}, latitude: ${latitude}`);
-      setMarkers(markers => [...markers, { latitude, longitude }]); // add a marker at the location
+      setMarkers(markers => [...markers, { latitude, longitude, user_ID: user.ID, user_name: user.name }]); // add a marker at the location
       // console.log('markers: ', markers);
       setShouldAddPin(shouldAddPin => !shouldAddPin);
 
@@ -198,21 +199,22 @@ const MapComponent = () => {
 
   const [events, setEvents] = React.useState({});
 
-  const logDragEvent = (name, event) => {
-    setEvents(events => { [...events, { [name]: lngLat }] });
+  // const logDragEvent = (name, event) => {
+  //   setEvents(events => { [...events, { [name]: lngLat }] });
+  // };
+
+  const onMarkerDragStart = ({ lngLat: [longitude,latitude] }) => {
+    console.log("dragging started");
   };
 
-  const onMarkerDragStart = ({ lngLat: [lng, lat] }) => {
-    logDragEvent('onDragStart', event);
+  const onMarkerDrag = ({ lngLat: [longitude,latitude] }) => {
+    console.log("dragging icon");
   };
 
-  const onMarkerDrag = ({ lngLat: [lng, lat] }) => {
-    logDragEvent('onDrag', event);
-  };
-
-  const onMarkerDragEnd = ({ lngLat: [lng, lat] }) => {
-    logDragEvent('onDragEnd', event);
-    setMarkers(markers => [...markers, { latitude, longitude }]);
+  const onMarkerDragEnd = ({ lngLat: [longitude,latitude] }) => {
+    // logDragEvent('onDragEnd', event);
+    setMarkers(markers.filter(item => item.user_name !== user.name))
+    setMarkers(markers => [...markers, { latitude, longitude, user_name: user.name }]);
   };
 
   return (
@@ -249,12 +251,15 @@ const MapComponent = () => {
               key={i}
               latitude={park.latitude}
               longitude={park.longitude}
-            // draggable={true}
-            // onDragStart={onMarkerDragStart}
-            // onDrag={onMarkerDrag}
-            // onDragEnd={onMarkerDragEnd}
+              user = {park.user_name}
+              draggable={true}
+              onDragStart={onMarkerDragStart}
+              onDrag={onMarkerDrag}
+              onDragEnd={onMarkerDragEnd}
             >
               <button className="marker-btn" onClick={(e) => {
+
+                console.log(markers);
                 e.preventDefault();
                 console.log('clicked: ', park);
                 setSelectedPark(park); // when the map pin button is clicked, we will set the state of selectedPark to be the current park the user clicked
@@ -268,6 +273,7 @@ const MapComponent = () => {
               key={park.user_ID} // each parking spot should have a unique key of who were in the spot
               latitude={park.latitude}
               longitude={park.longitude}
+              user = {park.user_name}
             >
               <button className="marker-btn" onClick={(e) => {
                 e.preventDefault();
@@ -295,7 +301,6 @@ const MapComponent = () => {
               </div>
               <button onClick={() => mapsSelector(selectedPark.latitude, selectedPark.longitude)}>Go to Maps</button>
               <button onClick={() => reserveClick(selectedPark.latitude, selectedPark.longitude)}>Reserve</button>
-              {taken}
             </Popup>
           ) : null}
           <button id="add_pin" style={{ position: 'absolute', bottom: '15vh', left: '4vw', height: '45px', width: '85px', borderRadius: '2vw', fontSize: '15px', background: '#2B7BF0', color: 'white' }}>

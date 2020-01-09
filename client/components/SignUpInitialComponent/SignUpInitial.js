@@ -60,7 +60,7 @@ export default function SignUpInitial(props) {
   //form validation for each field
   const [verifyName, setVerifyName] = useState({verify: false, helperText: ''});
   const [verifyPhone, setVerifyPhone] = useState({verify: false, helperText: ''});
-  const [verifyPass, setVerifyPass] = useState({verify: false, helperText: ''});
+  // const [verifyPass, setVerifyPass] = useState({verify: false, helperText: ''});
 
   const { user, updateUser
   } = useContext(UserContext);
@@ -120,11 +120,11 @@ export default function SignUpInitial(props) {
   }
   const handlePassChange = e => {
     setPass(e.target.value);
-    if (e.target.value.length < 7) {
-      setVerifyPass({ verify: true, helperText: 'Password must be at least 6 characters long.'})
-    } else {
-      setVerifyPhone({ verify: false, helperText: ''});
-    }
+    // if (e.target.value.length < 7) {
+    //   setVerifyPass({ verify: true, helperText: 'Password must be at least 6 characters long.'})
+    // } else {
+    //   setVerifyPhone({ verify: false, helperText: ''});
+    // }
   }
   const handleEmailChange = e => {
     setEmail(e.target.value);
@@ -176,7 +176,7 @@ export default function SignUpInitial(props) {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                error={verifyPass.verify}
+                // error={verifyPass.verify}
                 variant="outlined"
                 required
                 fullWidth
@@ -188,7 +188,7 @@ export default function SignUpInitial(props) {
                 autoComplete="current-password"
                 value={pass}
                 onChange={handlePassChange}
-                helperText={verifyPass.helperText}
+                // helperText={verifyPass.helperText}
               />
             </Grid>
             <Grid item xs={12}>
