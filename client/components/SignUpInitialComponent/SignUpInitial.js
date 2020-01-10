@@ -9,7 +9,7 @@ import { Grid } from '@material-ui/core';
 import { Box } from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import { Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { Container } from '@material-ui/core';
 import {
   Link,
@@ -18,7 +18,6 @@ import {
 } from 'react-router-dom';
 import Copyright from '../CopyrightComponent/Copyright';
 import { UserContext } from '../../contexts/UserContext';
-
 //TODO: Add form validation before user can move on to secondary sign up page
 //we need to validate user input on this form.
 const useStyles = makeStyles(theme => ({
@@ -45,6 +44,8 @@ const useStyles = makeStyles(theme => ({
     marginTop: '10px'
   }
 }));
+
+
 
 export default function SignUpInitial(props) {
   const classes = useStyles();
@@ -129,7 +130,7 @@ export default function SignUpInitial(props) {
   const handleEmailChange = e => {
     setEmail(e.target.value);
   }
-  return (
+  return (      
     <Container component="main" maxWidth="xs">
       <CssBaseline />
       <div className={classes.paper}>
