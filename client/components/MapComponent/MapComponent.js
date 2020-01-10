@@ -96,7 +96,7 @@ const MapComponent = () => {
                                                }]);
         })
       })
-  }, 5000)
+  }, 10000)
 
   // setInterval(() => {
 
@@ -122,16 +122,15 @@ const MapComponent = () => {
 
   const [time, setTime] = React.useState(new Date(Date.now()).toUTCString());
 
-  const [available, setAvailable] = React.useState(true);
-  
   const [reserved, setReserved] = React.useState(false);
 
-  const [taken, setTaken] = React.useState(false);
+  const [available, setAvailable] = React.useState(true);
+
+
 
 
   // when the user clicks on the map, add the coordinates into the markers array
   const handleClick = ({ lngLat: [longitude, latitude], target }) => { // the parameter is the PointerEvent in react-map-gl
-    console.log('user state', user)
     console.log('target.className', target.className);
     console.log('Markers in MapComponent: ', markers);
     console.log(markers);
@@ -211,7 +210,6 @@ const MapComponent = () => {
   //reserve button functionality
   const reserveClick = (lat, long) => {
     setReserved(true);
-    setAvailable(false);
     console.log('this is reserved inside reserveClick:', reserved);
     fetch("/api/parking", {
       method: "PATCH",
@@ -232,10 +230,7 @@ const MapComponent = () => {
   }
 
   //taken button - conditionally render
-  const takenClick = (lat, long) => {
-    setTaken(true);
-    setAvailable(false);
-    setReserved(false);
+  const takenButton = (lat, long) => {
     fetch("/api/parking", {
       method: "PATCH",
       body: JSON.stringify({
@@ -273,7 +268,7 @@ const MapComponent = () => {
   const onMarkerDragEnd = ({ lngLat: [longitude, latitude] }) => {
     // logDragEvent('onDragEnd', event);
     setUserMarker(userMarker => [])
-    setUserMarker(userMarker => [{ latitude, longitude, name: user.name, userMark: true }]);
+    setUserMarker(userMarker => [{ latitude, longitude, user_name: user.name }]);
   };
 
   return (
@@ -309,7 +304,7 @@ const MapComponent = () => {
               key={i}
               latitude={park.latitude}
               longitude={park.longitude}
-              user={park.name}
+              user={park.user_name}
               car_make={park.car_make}
               car_model={park.car_model}
               userMark={true}
@@ -318,14 +313,14 @@ const MapComponent = () => {
               onDrag={onMarkerDrag}
               onDragEnd={onMarkerDragEnd}
             >
-              <button className="marker-btn" onClick={(e) => {
+              <button className="pin" onClick={(e) => {
 
                 console.log(userMarker);
                 e.preventDefault();
                 console.log('clicked: ', park);
                 setSelectedPark(park); // when the map pin button is clicked, we will set the state of selectedPark to be the current park the user clicked
               }}>
-                <img src={marker} style={{ backgroundColor: 'red' }} width="15" height="20" />
+                <img style={{ backgroundColor: 'red' }} />
               </button>
             </Marker>
           ))}
@@ -339,14 +334,14 @@ const MapComponent = () => {
               car_model={park.car_model}
 
             >
-              <button className="marker-btn" onClick={(e) => {
+              <button className="pin" onClick={(e) => {
 
                 console.log(markers);
                 e.preventDefault();
                 console.log('clicked: ', park);
                 setSelectedPark(park); // when the map pin button is clicked, we will set the state of selectedPark to be the current park the user clicked
               }}>
-                <img src={marker} style={{ backgroundColor: 'transparent' }} width="15" height="20" />
+                <img style={{ backgroundColor: 'transparent' }}/>
               </button>
             </Marker>
           ))}
@@ -357,12 +352,12 @@ const MapComponent = () => {
               longitude={park.longitude}
               user={park.user_name}
             >
-              <button className="marker-btn" onClick={(e) => {
+              <button className="pin" onClick={(e) => {
                 e.preventDefault();
                 console.log('clicked: ', park);
                 setSelectedPark(park); // when the map pin button is clicked, we will set the state of selectedPark to be the current park the user clicked
               }}>
-                <img src={marker} style={{ backgroundColor: 'transparent' }} width="15" height="20" />
+                <img style={{ backgroundColor: 'transparent' }} />
               </button>
             </Marker>
           ))}
@@ -377,31 +372,37 @@ const MapComponent = () => {
                 setSelectedPark(null); // set the state of selectedPark back to null
               }}
             > {console.log('selected park',selectedPark)}
-              <div style={{ textAlign: 'left', width: '250px', height: '100px' }}>
-                Who parked here: {selectedPark.name || selectedPark.user || user.name}<br />
-                Parking coordinates: {selectedPark.latitude}, {selectedPark.longitude}<br />
-                Car: {selectedPark.car_make} {selectedPark.car_model}<br />
+              <div className="popupbox" style={{ textAlign: 'left', width: '250px', height: '100px' }}>
+                Parked: <b>{selectedPark.name || selectedPark.user || user.name} </b>
                 <br></br>
-                Available today at: {time}<br />
+                Car: <b>{selectedPark.car_make} {selectedPark.car_model}</b>
+                <br />
+                <br></br>
+                Spot will be available <b>{time}</b>
+                  <br />
+                  <br></br>
+                Coordinates: <b>{selectedPark.latitude}, {selectedPark.longitude}</b>
+                  <br />
+                {/* Car: {selectedPark.car_make} {selectedPark.car_model}<br /> */}
+                  <br></br>
+                Reserved: <b>{reserved}</b>
               </div>
 
               <br></br>
               <br></br>
+              <br></br>
+              <br></br>
 
-              {selectedPark.userMark ? //usermark is used as a means to render the SUBMIT SPOT BUTTON 
-              (<button onClick={() => availableClick(selectedPark.latitude, selectedPark.longitude, user)}>Submit Spot</button>)
-                : (reserved ? //otherwise, we are dealing with other users buttons, render the other options!
-                  (<div>
-                    <button onClick={() => mapsSelector(selectedPark.latitude, selectedPark.longitude)}>Go to Maps</button>
-                    <button onClick={() => takenClick(selectedPark.latitude, selectedPark.longitude)}>Taken</button>
-                    </div>
-                  ) : (!(selectedPark.name== user.name) ? (<button onClick={() => reserveClick(selectedPark.latitude, selectedPark.longitude)}>Reserve</button>): null))
-              }    
-
-
+              {selectedPark.userMark ? ( //usermark is used as a means to render the SUBMIT SPOT BUTTON
+                  <button className="popupboxbutton" onClick={() => availableClick(selectedPark.latitude, selectedPark.longitude, user)}>Submit Spot</button>)
+                : <button className="popupboxbutton" onClick={() => reserveClick(selectedPark.latitude, selectedPark.longitude)}>Reserve</button>
+              }  
+              {reserved ? ( //otherwise, we are dealing with other users buttons, render the other options!
+                <button className="popupboxbutton" onClick={() => mapsSelector(selectedPark.latitude, selectedPark.longitude)}>Map me!</button>
+              ) : null}
             </Popup>
           ) : null}
-          <button id="add_pin" style={{ position: 'absolute', bottom: '15vh', left: '4vw', height: '45px', width: '85px', borderRadius: '2vw', fontSize: '15px', background: '#2B7BF0', color: 'white' }}>
+          <button id="add_pin" style={{ position: 'absolute', bottom: '5.65vh', right: '1vw', height: '45px', width: '85px', borderRadius: '2vw', fontSize: '15px', background: '#2B7BF0', color: 'white', fontFamily: 'Quicksand' }}>
             + Add pin
           </button>
         </ReactMapGL>
