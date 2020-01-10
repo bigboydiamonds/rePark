@@ -20,6 +20,9 @@ api.patch('/parking', apiController.updateMarker, (req, res) => {
     res.status(200).json(res.locals.updated);
 })
 
+api.patch('/reservedBy', apiController.reservedBy, (req, res) => {
+    res.status(200).json(res.locals.reservedBy);
+})
 module.exports = api;
 
 // app.get('/api/parking', (req, res) => {
