@@ -332,7 +332,7 @@ const MapComponent = () => {
                 setSelectedPark(null); // set the state of selectedPark back to null
               }}
             > {console.log('selected park',selectedPark)}
-              <div style={{ textAlign: 'left', width: '350px', height: '150px' }}>
+              <div className="popupbox" style={{ textAlign: 'left', width: '350px', height: '150px' }}>
                 {/* Who parked here: {selectedPark.name }<br />
                 Parking coordinates: {selectedPark.latitude}, {selectedPark.longitude}<br />
                 Car: {selectedPark.car_make} {selectedPark.car_model}<br />
@@ -344,7 +344,7 @@ const MapComponent = () => {
               <br></br>
               <br></br> */}
 
-//
+
               Parked: <b>{selectedPark.name || selectedPark.user || user.name} </b>
                 <br></br>
                 Car: <b>{selectedPark.car_make} {selectedPark.car_model}</b>
@@ -357,14 +357,14 @@ const MapComponent = () => {
                   <br />
                 {/* Car: {selectedPark.car_make} {selectedPark.car_model}<br /> */}
                   <br></br>
-                Reserved: <b>{reserved}</b>
+                  {reservedDB ? (`Reserved by: ${reservedBy}`): null}
               </div>
 
               <br></br>
               <br></br>
               <br></br>
               <br></br>
-//
+
 
               {selectedPark.userMark ? //usermark is used as a means to render the SUBMIT SPOT BUTTON 
               (<button className="popupboxbutton" onClick={() => availableClick(selectedPark.latitude, selectedPark.longitude, user)}>Submit Spot</button>)
