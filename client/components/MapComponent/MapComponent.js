@@ -293,7 +293,7 @@ const MapComponent = () => {
               onDrag={onMarkerDrag}
               onDragEnd={onMarkerDragEnd}
             >
-              <button className="popupboxbutton" onClick={(e) => {
+              <button className="pin" onClick={(e) => {
                 e.preventDefault();
                 setSelectedPark(park); // when the map pin button is clicked, we will set the state of selectedPark to be the current park the user clicked
               }}>
@@ -312,7 +312,7 @@ const MapComponent = () => {
               parking_spot={park.parking_spot}
 
             >
-              <button className="popupboxbutton" onClick={(e) => {
+              <button className="pin" onClick={(e) => {
                 e.preventDefault();
                 console.log('clicked: ', park);
                 setSelectedPark(park); // when the map pin button is clicked, we will set the state of selectedPark to be the current park the user clicked
@@ -379,7 +379,7 @@ const MapComponent = () => {
 
             </Popup>
           ) : null}
-          <button id="add_pin" style={{ position: 'absolute', bottom: '15vh', left: '4vw', height: '45px', width: '85px', borderRadius: '2vw', fontSize: '15px', background: '#2B7BF0', color: 'white' }}>
+          <button id="add_pin" style={{ position: 'absolute', bottom: '5.65vh', right: '1vw', height: '45px', width: '85px', borderRadius: '2vw', fontSize: '15px', background: '#2B7BF0', color: 'white', fontFamily: 'Quicksand' }}>
             + Add pin
           </button>
         </ReactMapGL>
