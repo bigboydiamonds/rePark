@@ -5,10 +5,6 @@ import marker from './marker.png'; // image of map pin. Will need to find one wi
 import { UserContext } from '../../../client/contexts/UserContext.js';
 import './map.css';
 
-// hardcoded 2 locations as pins. Will have to replace this with MongoDB Parking data
-const mongoParkingSpots = [{ latitude: 33.985673, longitude: -118.455888, user_ID: 10000, user_name: 'Catherine', wait_time: '10' },
-{ latitude: 33.982185, longitude: -118.438087, user_ID: 10001, user_name: 'Amruth', wait_time: '15' }];
-
 const reservedSpace = [];
 
 const MapComponent = () => {
@@ -61,6 +57,8 @@ const MapComponent = () => {
 
   const [userMarker, setUserMarker] = React.useState([]); //this is the space that the user icon will be held until it is 'ready' to be added to datbase
   // this method will make the map pin popup go away when escape key is pressed
+
+
   useEffect(() => {
     const listener = e => {
       if (e.key === 'Escape') {
@@ -88,7 +86,7 @@ const MapComponent = () => {
           const longitude = Number(longitudeVar);
           setMarkers(markers => [...markers, { latitude,
                                                longitude,
-                                                parking_id: location.parking_id, 
+                                                parking_spot: location.parking_spot, 
                                                 id: location.id, 
                                                 name: location.name,
                                                 car_make: location.car_make,
@@ -123,8 +121,11 @@ const MapComponent = () => {
   const [time, setTime] = React.useState(new Date(Date.now()).toUTCString());
 
   const [reserved, setReserved] = React.useState(false);
+  const [reservedDB, setReservedDB] = React.useState(false); //react hook for when DB changes reserved to true
+  const [reservedBy, setReservedBy] = React.useState(''); //reservedBy hook for the 'get' request from DB
 
   const [available, setAvailable] = React.useState(true);
+
 
 
 
@@ -145,28 +146,6 @@ const MapComponent = () => {
       setTime(time => {
         return utcDateAdd10Min.toLocaleTimeString('en-US'); // this will set time to be the current time + 10 minutes, format example: 5:20:08 PM
       });
-
-      // // // send the coordinates and user id to the backend
-      // fetch('/api/parking', {
-      //   method: 'POST',
-      //   body: JSON.stringify({
-      //     longitude,
-      //     latitude,
-      //     user_id: user.id
-      //   }),
-      //   headers: { 'content-type': 'application/json', 'Accept': 'application/json' }
-      // })
-      //   .then(res => res.json())
-      //   .then(res => {
-      //     updateUser({
-      //       id: res.id,
-      //       name: res.name,
-      //       parking_id: res.parking_id
-      //   })
-      // })
-      //   .catch(err => {
-      //     console.log(err);
-      //   })
     }
 
 
@@ -188,29 +167,14 @@ const MapComponent = () => {
         }),
         headers: { 'content-type': 'application/json', 'Accept': 'application/json' } //need to hash this out for adding the user's button to the database
       });
-    // fetch("/api/parking", {
-    //   method: "PATCH",
-    //   body: JSON.stringify({
-    //     id: user.id,
-    //     latitude: lat,
-    //     longitude: long,
-    //     available: available,
-    //     reserved: reserved,
-    //     taken: false,
-    //   }),
-    //   headers: {
-    //     "Content-Type": "application/json"
-    //   }
-    // }).then(res => {
-    //   console.log('Available changed', res)
-    // })
   }
 
 
   //reserve button functionality
-  const reserveClick = (lat, long) => {
+  const reserveClick = (lat, long, parking_spot) => {
     setReserved(true);
-    console.log('this is reserved inside reserveClick:', reserved);
+    setAvailable(false);
+    console.log('I am clicking in reserveclick good sir');
     fetch("/api/parking", {
       method: "PATCH",
       body: JSON.stringify({
@@ -218,14 +182,17 @@ const MapComponent = () => {
         latitude: lat,
         longitude: long,
         available: false,
-        reserved: reserved,
+        reserved: true,
         taken: false,
+        parking_spot: parking_spot,
+        reserved_by: user.name
       }),
       headers: {
         "Content-Type": "application/json"
       }
     }).then(res => {
-      console.log('Patch completed', res)
+      console.log('this is reservedDB', reservedDB);
+      setReservedDB(true);
     })
   }
 
@@ -249,27 +216,36 @@ const MapComponent = () => {
     })
   }
 
-  const [events, setEvents] = React.useState({});
-
-  // const logDragEvent = (name, event) => {
-  //   setEvents(events => { [...events, { [name]: lngLat }] });
-  // };
-
-    // const [userMarker, setUserMarker] = React.useState([]);
-
   const onMarkerDragStart = ({ lngLat: [longitude, latitude] }) => {
-    console.log("dragging started");
   };
 
   const onMarkerDrag = ({ lngLat: [longitude, latitude] }) => {
-    console.log("dragging icon");
   };
 
   const onMarkerDragEnd = ({ lngLat: [longitude, latitude] }) => {
-    // logDragEvent('onDragEnd', event);
     setUserMarker(userMarker => [])
     setUserMarker(userMarker => [{ latitude, longitude, user_name: user.name }]);
   };
+
+  //this is a helper function that gets the reserved_by name to fill in the pop up //parkingid should 
+  const reservedByQuery = (parking_spot) => {
+    fetch("/api/reservedBy", {
+      method: 'PATCH',
+      body: JSON.stringify({
+        parking_spot: parking_spot
+      }),
+      headers: {
+        'content-type': 'application/json', 'Accept': 'application/json' 
+      }
+    }).then(res => res.json())
+    .then(res => {
+      console.log('this is res.reservedBy', res)
+      setReservedBy(`${res.reserved_by}`);
+    })
+    .catch(err=> {
+      console.log(err);
+    })
+  }
 
   return (
     <div style={{ margin: '-2vw', textAlign: 'left' }}>
@@ -317,7 +293,6 @@ const MapComponent = () => {
 
                 console.log(userMarker);
                 e.preventDefault();
-                console.log('clicked: ', park);
                 setSelectedPark(park); // when the map pin button is clicked, we will set the state of selectedPark to be the current park the user clicked
               }}>
                 <img style={{ backgroundColor: 'red' }} />
@@ -332,6 +307,7 @@ const MapComponent = () => {
               user={park.name}
               car_make={park.car_make}
               car_model={park.car_model}
+              parking_spot={park.parking_spot}
 
             >
               <button className="pin" onClick={(e) => {
@@ -393,13 +369,17 @@ const MapComponent = () => {
               <br></br>
               <br></br>
 
-              {selectedPark.userMark ? ( //usermark is used as a means to render the SUBMIT SPOT BUTTON
-                  <button className="popupboxbutton" onClick={() => availableClick(selectedPark.latitude, selectedPark.longitude, user)}>Submit Spot</button>)
-                : <button className="popupboxbutton" onClick={() => reserveClick(selectedPark.latitude, selectedPark.longitude)}>Reserve</button>
-              }  
-              {reserved ? ( //otherwise, we are dealing with other users buttons, render the other options!
-                <button className="popupboxbutton" onClick={() => mapsSelector(selectedPark.latitude, selectedPark.longitude)}>Map me!</button>
-              ) : null}
+              {selectedPark.userMark ? //usermark is used as a means to render the SUBMIT SPOT BUTTON 
+              (<button className="popupboxbutton" onClick={() => availableClick(selectedPark.latitude, selectedPark.longitude, user)}>Submit Spot</button>)
+                : (reserved ? //otherwise, we are dealing with other users buttons, render the other options!
+                  (<div>
+                    <button className="popupboxbutton" onClick={() => mapsSelector(selectedPark.latitude, selectedPark.longitude)}>Go to Maps</button>
+                    <button className="popupboxbutton" onClick={() => takenClick(selectedPark.latitude, selectedPark.longitude)}>Taken</button>
+                    </div>
+                  ) : (!(selectedPark.name== user.name) ? (<button className="popupboxbutton" onClick={() => {reserveClick(selectedPark.latitude, selectedPark.longitude, selectedPark.parking_spot), reservedByQuery(selectedPark.parking_spot)}}>Reserve</button>): null))
+              }    
+
+
             </Popup>
           ) : null}
           <button id="add_pin" style={{ position: 'absolute', bottom: '5.65vh', right: '1vw', height: '45px', width: '85px', borderRadius: '2vw', fontSize: '15px', background: '#2B7BF0', color: 'white', fontFamily: 'Quicksand' }}>
