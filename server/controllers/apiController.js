@@ -17,7 +17,7 @@ apiController.create = async (req, res, next) => {
     const values = [longitude, latitude, dateTime, true, false, false ];
 
    await db.query(text, values)
-        .then(response => console.log(response))
+        .then(response => {})
         .catch(err => console.log(err))
 
     next();
@@ -32,9 +32,7 @@ apiController.findAll = async (req, res, next) =>{
     `
     await db.query(text)
     .then(response =>{
-        console.log('response.rows within apicontroller is: ',response.rows);
         res.locals.pins = response.rows;
-        console.log('Locations are updating!');
     })
     .catch(err => {
         console.log(err)
@@ -53,13 +51,11 @@ apiController.findOne = async (req, res, next) =>{
   await db.query(text)
     .then(response => {
       res.locals.id = response.rows[0].parking_id;
-      console.log(response);
     })
     .catch(err => {
       console.log(err);
     })
 
-    console.log('req.body within findOne controller function in api: ', req.body);
   const text2 = `
         UPDATE users
         SET parking_spot = ${res.locals.id}
@@ -68,7 +64,7 @@ apiController.findOne = async (req, res, next) =>{
 
   const values = [res.locals.id];
   await db.query(text2)
-    .then(response => {console.log(response)})
+    .then(response => {})
     .catch(err => {console.log(err)})
 
   const text3 = `
@@ -80,27 +76,41 @@ apiController.findOne = async (req, res, next) =>{
   await db.query(text3)
     .then(response => {
       res.locals.name = response.rows[0].name;
-      console.log(response);
     })
     .catch(err => {console.log(err)})
 
   next();
 }
 
+
 apiController.updateMarker = async (req, res, next) => {
-  const { longitude, latitude } = req.body;
-  const text = `SELECT * 
-                FROM parking 
-                WHERE longitude = '${longitude}' AND latitude = '${latitude}'`;
+  const { longitude, latitude, available, reserved, taken, id, parking_spot, reserved_by } = req.body;
+  const text = `UPDATE parking
+  SET available = false, reserved = true, reserved_by = '${reserved_by}'
+  WHERE parking_id = ${parking_spot};`;
   await db.query(text)
     .then(response =>{
-    res.locals.updated = response.rows[0];
-    console.log(response);
     })
     .catch(err =>{
       console.log(err); 
     })
 
+  next();
+}
+
+apiController.reservedBy = async (req, res, next) => {
+  const { parking_spot } = req.body;
+  const text = `SELECT reserved_by
+                FROM parking
+                WHERE parking_id = ${parking_spot};`;
+  await db.query(text)
+  .then(response => {
+    console.log('this is response.rows in reservedBy', response.rows)
+    res.locals.reservedBy = response.rows[0];
+  })
+  .catch(err => {
+    console.log(err);
+  })
   next();
 }
 
