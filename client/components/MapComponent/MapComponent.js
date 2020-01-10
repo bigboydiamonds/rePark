@@ -293,11 +293,11 @@ const MapComponent = () => {
               onDrag={onMarkerDrag}
               onDragEnd={onMarkerDragEnd}
             >
-              <button className="marker-btn" onClick={(e) => {
+              <button className="popupboxbutton" onClick={(e) => {
                 e.preventDefault();
                 setSelectedPark(park); // when the map pin button is clicked, we will set the state of selectedPark to be the current park the user clicked
               }}>
-                <img src={marker} style={{ backgroundColor: 'red' }} width="15" height="20" />
+                <img style={{ backgroundColor: 'red' }} />
               </button>
             </Marker>
           ))}
@@ -312,12 +312,12 @@ const MapComponent = () => {
               parking_spot={park.parking_spot}
 
             >
-              <button className="marker-btn" onClick={(e) => {
+              <button className="popupboxbutton" onClick={(e) => {
                 e.preventDefault();
                 console.log('clicked: ', park);
                 setSelectedPark(park); // when the map pin button is clicked, we will set the state of selectedPark to be the current park the user clicked
               }}>
-                <img src={marker} style={{ backgroundColor: 'transparent' }} width="15" height="20" />
+                <img style={{ backgroundColor: 'transparent' }} />
               </button>
             </Marker>
           ))}
