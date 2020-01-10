@@ -333,7 +333,7 @@ const MapComponent = () => {
               }}
             > {console.log('selected park',selectedPark)}
               <div style={{ textAlign: 'left', width: '350px', height: '150px' }}>
-                Who parked here: {selectedPark.name }<br />
+                {/* Who parked here: {selectedPark.name }<br />
                 Parking coordinates: {selectedPark.latitude}, {selectedPark.longitude}<br />
                 Car: {selectedPark.car_make} {selectedPark.car_model}<br />
                 <br></br>
@@ -342,16 +342,38 @@ const MapComponent = () => {
               </div>
 
               <br></br>
+              <br></br> */}
+
+//
+              Parked: <b>{selectedPark.name || selectedPark.user || user.name} </b>
+                <br></br>
+                Car: <b>{selectedPark.car_make} {selectedPark.car_model}</b>
+                <br />
+                <br></br>
+                Spot will be available <b>{time}</b>
+                  <br />
+                  <br></br>
+                Coordinates: <b>{selectedPark.latitude}, {selectedPark.longitude}</b>
+                  <br />
+                {/* Car: {selectedPark.car_make} {selectedPark.car_model}<br /> */}
+                  <br></br>
+                Reserved: <b>{reserved}</b>
+              </div>
+
               <br></br>
+              <br></br>
+              <br></br>
+              <br></br>
+//
 
               {selectedPark.userMark ? //usermark is used as a means to render the SUBMIT SPOT BUTTON 
-              (<button onClick={() => availableClick(selectedPark.latitude, selectedPark.longitude, user)}>Submit Spot</button>)
+              (<button className="popupboxbutton" onClick={() => availableClick(selectedPark.latitude, selectedPark.longitude, user)}>Submit Spot</button>)
                 : (reserved ? //otherwise, we are dealing with other users buttons, render the other options!
                   (<div>
-                    <button onClick={() => mapsSelector(selectedPark.latitude, selectedPark.longitude)}>Go to Maps</button>
-                    <button onClick={() => takenClick(selectedPark.latitude, selectedPark.longitude)}>Taken</button>
+                    <button className="popupboxbutton" onClick={() => mapsSelector(selectedPark.latitude, selectedPark.longitude)}>Go to Maps</button>
+                    <button className="popupboxbutton" onClick={() => takenClick(selectedPark.latitude, selectedPark.longitude)}>Taken</button>
                     </div>
-                  ) : (!(selectedPark.name== user.name) ? (<button onClick={() => {reserveClick(selectedPark.latitude, selectedPark.longitude, selectedPark.parking_spot), reservedByQuery(selectedPark.parking_spot)}}>Reserve</button>): null))
+                  ) : (!(selectedPark.name== user.name) ? (<button className="popupboxbutton" onClick={() => {reserveClick(selectedPark.latitude, selectedPark.longitude, selectedPark.parking_spot), reservedByQuery(selectedPark.parking_spot)}}>Reserve</button>): null))
               }    
 
 
